@@ -7,6 +7,8 @@ NexCreator is © 2018 Jim Bagley.
 
 Download a 32-bit Windows version [here](https://github.com/Threetwosevensixseven/NexCreator/raw/master/vs/Debug/NexCreator.exe).
 
+Jim's original version can also be downloaded [here](https://gitlab.com/thesmog358/tbblue/raw/master/tools/dev/NexCreator/NexCreator.exe?inline=false).
+
 ## Additions
 
 * Added a test program which can load all 224 of the ZX Spectrum Next 8K MMU RAM banks, and print a value to verify the contents are as expected.
