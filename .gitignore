@@ -11,3 +11,5 @@
 /vs/NexCreator/Debug/*.pdb
 /vs/NexCreator/*.user
 /vs/NexCreator/Debug/NexCreator.tlog/*.lastbuildstate
+/vs/GenerateMMUBanks/bin
+/vs/GenerateMMUBanks/obj
