@@ -80,7 +80,7 @@ unsigned char loadingHiCol[6144 + 6144];
 
 int HiResColour = 0;
 
-unsigned char bigFile[1024 * 1024 * 1024];
+unsigned char bigFile[224 * 0x4000];
 unsigned char temp16k[16384];
 unsigned char inputLine[4096];
 unsigned char filename[1024];
@@ -476,8 +476,11 @@ int main(int c, char **s)
     fclose(fin1);
     if ((lastBank>-1) || (fileadded != 0))
     {
-        for (i = 0; i<64 + 48; i++)	if (header512.Banks[i]>0) header512.NumBanksToLoad++;
-        if (header512.NumBanksToLoad>48) header512.RAM_Required = 1;
+        for (i = 0; i < 64 + 48; i++)
+        {
+            if (header512.Banks[i] > 0) header512.NumBanksToLoad++;
+            if (i >= 48) header512.RAM_Required = 1;
+        }
         fout = fopen(s[2], "wb");
         if (fout == NULL)
         {

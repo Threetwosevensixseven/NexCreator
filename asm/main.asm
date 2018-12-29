@@ -175,11 +175,14 @@ org $C000:
 dispto zeuspage(7):     ds $4000, $F7                   ; Fill up 16k bank 7 with $F7
 disp 0
 
-for n = 8 to 66
+// 8k banks 128-133 are not being referenced correctly. It appears they all map to bank 133.
+// 8k banks 134-223 generate a syntax error when passed in to zeusmmu().
+/*for n = 8 to 66
   org zeusmmu(n*2):     ds $2000, n*2                   ; Fill up 8k bank nn with nn
   org zeusmmu((n*2)+1): ds $2000, (n*2)+1
   output_bin            BankName(n), zeusmmu(n*2), $4000
 next ;n
+*/
 
 [[
 function BankName(A)

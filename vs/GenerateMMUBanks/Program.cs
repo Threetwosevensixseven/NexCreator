@@ -13,8 +13,8 @@ namespace GenerateMMUBanks
         {
             for (byte bank16 = 8; bank16 <= 111; bank16++)
             {
-                var bytes = Enumerable.Repeat(bank16, 0x2000)
-                    .Concat(Enumerable.Repeat(Convert.ToByte(bank16 + 1), 0x2000))
+                var bytes = Enumerable.Repeat(Convert.ToByte(bank16 * 2), 0x2000)
+                    .Concat(Enumerable.Repeat(Convert.ToByte((bank16 * 2) + 1), 0x2000))
                     .ToArray();
                 string fn = Path.Combine(BankDirectory, "Bank" + bank16 + ".bin");
                 File.WriteAllBytes(fn, bytes);
