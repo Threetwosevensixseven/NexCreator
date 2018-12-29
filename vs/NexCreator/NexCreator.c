@@ -366,6 +366,7 @@ int main(int c, char **s)
                 }
                 if (ptr[0] == ',')
                 {
+                    ptr++;
                     HiResColour = getInt();
                 }
             }
