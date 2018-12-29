@@ -1,1 +1,13 @@
 /asm/ZeusBak
+/vs/.vs/NexCreator/v14/*.suo
+/vs/Debug/*.ilk
+/vs/Debug/*.pdb
+/vs/NexCreator.VC.db
+/vs/NexCreator/Debug/*.log
+/vs/NexCreator/Debug/*.obj
+/vs/NexCreator/Debug/*.pch
+/vs/NexCreator/Debug/NexCreator.tlog/*.tlog
+/vs/NexCreator/Debug/*.idb
+/vs/NexCreator/Debug/*.pdb
+/vs/NexCreator/*.user
+/vs/NexCreator/Debug/NexCreator.tlog/*.lastbuildstate
