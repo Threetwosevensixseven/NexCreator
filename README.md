@@ -24,8 +24,8 @@ Download a 32-bit Windows version [here](https://github.com/Threetwosevensixseve
 ## Acknowledgements
 The test program includes a derivation of the [FZX font driver](https://spectrumcomputing.co.uk/index.php?cat=96&id=28171).
 
-FZX font driver - Copyright (c) 2013 Einar Saukas
-FZX font format - Copyright (c) 2013 Andrew Owen
+FZX font driver - Copyright (c) 2013 Einar Saukas  
+FZX font format - Copyright (c) 2013 Andrew Owen  
 
 FZX is a royalty-free compact font file format designed primarily for storing bitmap fonts for 8 bit computers, primarily the Sinclair ZX Spectrum, although also adopting it for other platforms is welcome and encouraged!
 
