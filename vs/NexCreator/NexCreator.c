@@ -321,16 +321,16 @@ int main(int c, char **s)
                 {
                     fread(tempHeader, 1, 0x36, fin2);
                     fread(tempPalette, 4, 256, fin2);
-                    for (i = 0; i<256; i++)
+                    for (i = 0; i < 256; i++)
                     {
                         palette[i] = ((convert8BitTo3Bits(tempPalette[i * 4 + 0]) >> 2 & 1) << 8) + (convert8BitTo3Bits(tempPalette[i * 4 + 0]) >> 1) + (convert8BitTo3Bits(tempPalette[i * 4 + 1]) << 2) + (convert8BitTo3Bits(tempPalette[i * 4 + 2]) << 5);
                         if (use8BitPalette != 0)	palette[i] &= 255;
                     }
                     i = tempHeader[11] * 256 + tempHeader[10];
                     fseek(fin2, (long int)i, SEEK_SET);
-                    for (i = 0; i<192; i++)
+                    for (i = 0; i < 192; i++)
                     {
-                        if (tempHeader[25]<128)
+                        if (tempHeader[25] < 128)
                         {
                             fread(&loading[(191 - i) * 256], 1, 256, fin2);
                         }
@@ -396,15 +396,15 @@ int main(int c, char **s)
                 {
                     fread(tempHeader, 1, 0x36, fin2);
                     fread(tempPalette, 4, 256, fin2);
-                    for (i = 0; i<256; i++)
+                    for (i = 0; i < 256; i++)
                     {
                         paletteLoRes[i] = ((convert8BitTo3Bits(tempPalette[i * 4 + 0]) >> 2 & 1) << 8) + (convert8BitTo3Bits(tempPalette[i * 4 + 0]) >> 1) + (convert8BitTo3Bits(tempPalette[i * 4 + 1]) << 2) + (convert8BitTo3Bits(tempPalette[i * 4 + 2]) << 5);
                     }
                     i = tempHeader[11] * 256 + tempHeader[10];
                     fseek(fin2, (long int)i, SEEK_SET);
-                    for (i = 0; i<96; i++)
+                    for (i = 0; i < 96; i++)
                     {
-                        if (tempHeader[25]<128)
+                        if (tempHeader[25] < 128)
                         {
                             fread(&loadingLoRes[(95 - i) * 128], 1, 128, fin2);
                         }
@@ -457,6 +457,18 @@ int main(int c, char **s)
                     header512.LoadingScreen |= 16;
                     printf("Loading Screen '%s'\n", filename);
                     fileadded = 1;
+                }
+            }
+            else if (((inputLine[1] & 0xdf) == 'P') && ((inputLine[2] & 0xdf) == 'C') && ((inputLine[3] & 0xdf) == 'S') && ((inputLine[4] & 0xdf) == 'P'))
+            {
+                ptr = &inputLine[5];
+                header512.PC = getInt();
+                printf("PC=$%04x\n", header512.PC);
+                if (ptr[0] == ',')
+                {
+                    ptr++;
+                    header512.SP = getInt();
+                    printf("SP=$%04x\n", header512.SP);
                 }
             }
         }

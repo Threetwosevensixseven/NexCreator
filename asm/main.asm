@@ -28,6 +28,7 @@ Start:
                         Contention(false)
                         //Border(Black)
                         ClsAttrFull(BrightWhiteBlackP)
+                        FillLDIR($4000, $1800, $00)
                         ei
                         halt
 
@@ -174,6 +175,8 @@ dispto zeuspage(6):     ds $4000, $F6                   ; Fill up 16k bank 6 wit
 org $C000:
 dispto zeuspage(7):     ds $4000, $F7                   ; Fill up 16k bank 7 with $F7
 disp 0
+
+output_bin              BankName(2), zeuspage(2), $4000
 
 // 8k banks 128-133 are not being referenced correctly. It appears they all map to bank 133.
 // 8k banks 134-223 generate a syntax error when passed in to zeusmmu().
