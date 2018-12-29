@@ -87,6 +87,7 @@ unsigned char filename[1024];
 
 unsigned char SNAHeader[27];
 unsigned char SNA128Header[4] = { 0,0,0,0 };
+unsigned char SNABank[8];
 
 void skipSpace()
 {
@@ -199,7 +200,12 @@ void addFile(char *fname)
         {
             header512.Banks[bank] = 1;
         }
-        printf("bank=%d,addr=%04x,realbank=%d,%d\n", bank, address, realBank, len);
+        if (sna == 1 && SNABank[realBank] == 0)
+        {
+            header512.Banks[bank] = 0;
+            printf("Skipping SNA bank %d\n", bank);
+        }
+        else printf("bank=%d,addr=%04x,realbank=%d,%d\n", bank, address, realBank, len);
         if (realBank>lastBank) lastBank = realBank;
         if (sna == 1)
         {
@@ -469,6 +475,16 @@ int main(int c, char **s)
                 }
             }
             printf("File '%s' %d, %04x\n", filename, bank, address);
+            for (int i = 0; i < 8; i++)
+            {
+                if (ptr[0] == ',')
+                {
+                    ptr++;
+                    SNABank[i] = getInt();
+                    //printf("SNABank[%d]=%d\n", i, SNABank[i]);
+                }
+                else break;
+            }
             addFile(filename);
         }
         //		printf("line %d='%s'\n",line,inputLine);

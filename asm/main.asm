@@ -1,4 +1,4 @@
-; NXtelNex.asm
+; main.asm
 
 zeusemulate             "Next"
  zoLogicOperatorsHighPri = false
@@ -27,7 +27,7 @@ Start:
                         Turbo(MHz14)
                         Contention(false)
                         //Border(Black)
-                        //ClsAttrFull(DimBlackBlackP)
+                        ClsAttrFull(BrightWhiteBlackP)
                         ei
                         halt
 

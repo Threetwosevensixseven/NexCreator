@@ -1,4 +1,4 @@
-..\nex\NexTest.sna,5,4000
+..\nex\NexTest.sna,5,4000,1,1,0,0,0,0,0,0
 ..\nex\bank8.bin,8,$0000
 ..\nex\bank9.bin,9,$0000
 ..\nex\bank10.bin,10,$0000
