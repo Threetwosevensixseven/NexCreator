@@ -19,6 +19,12 @@ namespace GenerateMMUBanks
                 string fn = Path.Combine(BankDirectory, "Bank" + bank16 + ".bin");
                 File.WriteAllBytes(fn, bytes);
             }
+            for (byte bank8 = 16; bank8 <= 223; bank8++)
+            {
+                var bytes = Enumerable.Repeat(bank8, 0x2000).ToArray();
+                string fn = Path.Combine(BankDirectory, "mmu" + bank8 + ".bin");
+                File.WriteAllBytes(fn, bytes);
+            }
         }
 
         private static string BankDirectory

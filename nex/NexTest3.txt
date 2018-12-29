@@ -1,0 +1,10 @@
+; PC is $8000, SP is $FF40.
+!PCSP$8000,$FF40
+
+; This is real bank 2. There is no SNA included.
+..\nex\bank2.bin,2,$4000
+ 
+; These are 8k MMU banks.
+!MMU..\nex\mmu16.bin,16,$0000   
+!MMU..\nex\mmu17.bin,17,$0000  
+!MMU..\nex\mmu18.bin,18,$0000  

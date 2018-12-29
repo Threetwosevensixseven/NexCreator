@@ -4,7 +4,7 @@
 ; This is real bank 2. There is no SNA included.
 ..\nex\bank2.bin,2,$4000
  
-; These are MMU banks.
+; These are 16K MMU banks.
 ..\nex\bank8.bin,8,$0000   
 ..\nex\bank9.bin,9,$0000
 ..\nex\bank10.bin,10,$0000

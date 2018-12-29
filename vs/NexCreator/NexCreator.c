@@ -471,6 +471,27 @@ int main(int c, char **s)
                     printf("SP=$%04x\n", header512.SP);
                 }
             }
+            else if (((inputLine[1] & 0xdf) == 'M') && ((inputLine[2] & 0xdf) == 'M') && ((inputLine[3] & 0xdf) == 'U'))
+            {
+                int bank8k, address8k;
+                ptr = &inputLine[4];
+                getString(filename, sizeof(filename));
+                if (ptr[0] == ',')
+                {
+                    ptr++;
+                    bank8k = getInt();
+                    bank = bank8k / 2;
+                    if (ptr[0] == ',')
+                    {
+                        ptr++;
+                        address = getHex();
+                        address8k = address;
+                        if (bank8k != (bank * 2)) address += 0x2000;
+                    }
+                }
+                printf("File '%s' 8K bank %d, %04x (16K bank %d, %04x)\n", filename, bank8k, address8k, bank, address);
+                addFile(filename);
+            }
         }
         else if (inputLine[0] != ';' && inputLine[0] != 0)
         {
@@ -486,7 +507,7 @@ int main(int c, char **s)
                     address = getHex();
                 }
             }
-            printf("File '%s' %d, %04x\n", filename, bank, address);
+            printf("File '%s' 16K bank %d, %04x\n", filename, bank, address);
             for (int i = 0; i < 8; i++)
             {
                 if (ptr[0] == ',')
