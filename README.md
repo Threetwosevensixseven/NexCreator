@@ -21,6 +21,10 @@ Download a 32-bit Windows version [here](https://github.com/Threetwosevensixseve
 
 * Changed the way that 2MB RAM .nex files are specified. Instead of counting the banks, a .nex file is 2MB if any of the 16K banks bank numbers are larger than 47.
 
+* Added the optional ability to specify 8KB files and 8KB bank numbers with the !MMU token, instead of 16KB files and 16KB bank numbers.
+
+![8KB Bank Example](https://github.com/Threetwosevensixseven/NexCreator/raw/master/images/example-8k-banks.png)
+
 ## Acknowledgements
 The test program includes a derivation of the [FZX font driver](https://spectrumcomputing.co.uk/index.php?cat=96&id=28171).
 
