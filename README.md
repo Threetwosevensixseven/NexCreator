@@ -9,6 +9,8 @@ Download a 32-bit Windows version [here](https://github.com/Threetwosevensixseve
 
 Jim's original version can also be downloaded [here](https://gitlab.com/thesmog358/tbblue/raw/master/tools/dev/NexCreator/NexCreator.exe?inline=false).
 
+The NextZXOS .nexload dot command to load these files can be found [here](https://gitlab.com/thesmog358/tbblue/raw/master/dot/NEXLOAD?inline=false), and the source for the dot command [here](https://gitlab.com/thesmog358/tbblue/blob/master/src/asm/nexload/nexload.asm).
+
 ## Additions
 
 * Added a test program which can load all 224 of the ZX Spectrum Next 8K MMU RAM banks, and print a value to verify the contents are as expected.
