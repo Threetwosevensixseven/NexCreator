@@ -87,7 +87,7 @@ unsigned char filename[1024];
 
 unsigned char SNAHeader[27];
 unsigned char SNA128Header[4] = { 0,0,0,0 };
-unsigned char SNABank[8];
+unsigned char SNABank[8] = { 1,1,1,1,1,1,1,1 };
 
 void skipSpace()
 {

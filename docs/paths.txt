@@ -1,0 +1,5 @@
+"$(SolutionDir)..\nex\NexTest3.txt" "$(SolutionDir)..\sd\NexTest.nex"
+$(SolutionDir)
+
+"C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel\build\NXtel.big" "C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel\bin\NXtel.nex"
+"C:\Users\robin\Documents\Visual Studio 2015\Projects\NXtel\build"

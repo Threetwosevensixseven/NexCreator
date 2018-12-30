@@ -14,3 +14,4 @@
 /vs/GenerateMMUBanks/bin
 /vs/GenerateMMUBanks/obj
 /vs/NexCreator/Debug/*.enc
+/vs/*.opendb
