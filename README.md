@@ -9,7 +9,7 @@ Download a 32-bit Windows version [here](https://github.com/Threetwosevensixseve
 
 Jim's original version can also be downloaded [here](https://gitlab.com/thesmog358/tbblue/raw/master/tools/dev/NexCreator/NexCreator.exe?inline=false), and the source for that [here](https://gitlab.com/thesmog358/tbblue/blob/master/src/c/NexCreator.c).
 
-The NextZXOS .nexload dot command to load these files can be found [here](https://gitlab.com/thesmog358/tbblue/raw/master/dot/NEXLOAD?inline=false), and the source for the dot command [here](https://gitlab.com/thesmog358/tbblue/blob/master/src/asm/nexload/nexload.asm).
+The NextZXOS .nexload dot command to load these files can be found [here](https://gitlab.com/thesmog358/tbblue/raw/master/dot/NEXLOAD?inline=false), and the source for that [here](https://gitlab.com/thesmog358/tbblue/blob/master/src/asm/nexload/nexload.asm).
 
 ## Additions
 
