@@ -7,10 +7,6 @@ NexCreator is © 2018 Jim Bagley.
 
 Download a 32-bit Windows version of this fork [here](https://github.com/Threetwosevensixseven/NexCreator/raw/master/vs/Debug/NexCreator.exe).
 
-Jim's original version can also be found [here](https://gitlab.com/thesmog358/tbblue/raw/master/tools/dev/NexCreator/NexCreator.exe?inline=false), with the source code [here](https://gitlab.com/thesmog358/tbblue/blob/master/src/c/NexCreator.c).
-
-The NextZXOS .nexload dot command to load these files can be found [here](https://gitlab.com/thesmog358/tbblue/raw/master/dot/NEXLOAD?inline=false), with the source code [here](https://gitlab.com/thesmog358/tbblue/blob/master/src/asm/nexload/nexload.asm).
-
 ## Additions
 
 * Added a test program which can load all 224 of the ZX Spectrum Next 8K MMU RAM banks, and print a value to verify the contents are as expected.
@@ -30,6 +26,14 @@ The NextZXOS .nexload dot command to load these files can be found [here](https:
 ![8KB Bank Example](https://github.com/Threetwosevensixseven/NexCreator/raw/master/images/example-8k-banks.png)
 
 ## Acknowledgements
+### NexCreator
+NexCreator is © 2018 Jim Bagley.
+
+Jim's original version can also be found [here](https://gitlab.com/thesmog358/tbblue/raw/master/tools/dev/NexCreator/NexCreator.exe?inline=false), with the source code [here](https://gitlab.com/thesmog358/tbblue/blob/master/src/c/NexCreator.c).
+
+The NextZXOS .nexload dot command to load these files can be found [here](https://gitlab.com/thesmog358/tbblue/raw/master/dot/NEXLOAD?inline=false), with the source code [here](https://gitlab.com/thesmog358/tbblue/blob/master/src/asm/nexload/nexload.asm).
+
+### FZX
 The test program includes a derivation of the [FZX font driver](https://spectrumcomputing.co.uk/index.php?cat=96&id=28171).
 
 FZX font driver - Copyright (c) 2013 Einar Saukas  
