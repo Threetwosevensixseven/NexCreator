@@ -29,7 +29,7 @@ Download a 32-bit Windows version of this fork [here](https://github.com/Threetw
 ### NexCreator
 NexCreator is © 2018 Jim Bagley.
 
-Jim's original version can also be found [here](https://gitlab.com/thesmog358/tbblue/raw/master/tools/dev/NexCreator/NexCreator.exe?inline=false), with the source code [here](https://gitlab.com/thesmog358/tbblue/blob/master/src/c/NexCreator.c).
+Jim's original version can be found [here](https://gitlab.com/thesmog358/tbblue/raw/master/tools/dev/NexCreator/NexCreator.exe?inline=false), with the source code [here](https://gitlab.com/thesmog358/tbblue/blob/master/src/c/NexCreator.c).
 
 The NextZXOS .nexload dot command to load these files can be found [here](https://gitlab.com/thesmog358/tbblue/raw/master/dot/NEXLOAD?inline=false), with the source code [here](https://gitlab.com/thesmog358/tbblue/blob/master/src/asm/nexload/nexload.asm).
 
