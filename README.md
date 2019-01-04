@@ -37,8 +37,6 @@ Download a 32-bit Windows version of this fork [here](https://github.com/Threetw
 
 * .nexload gives a custom BASIC core update error when it encounters .nex files requiring core version newer than the current core.
 
-* .nexload now reads the V1.2 HEADER_ENTRYBANK byte, and pages in this 16K bank at $C000 before jumping to the PC. This only happens if HEADER_DONTRESETNEXTREGS is 0. The user must be sure to create suitable entry point code in this bank somewhere between $C000..FFFF, and set PC accordingly, either in the input SNA or with the !PCSP token.  
-
 ## Acknowledgements
 ### NexCreator
 NexCreator is © 2018 Jim Bagley.
