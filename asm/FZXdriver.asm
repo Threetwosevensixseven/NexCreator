@@ -93,12 +93,12 @@ CHK_CR:
         inc     (hl)            ; increment P_FLAG to restore previous value
         inc     hl
         ld      bc, FONT
-::FZX_FONT equ $-2
+FZX_FONT equ $-2
         push    bc
         pop     ix
         cp      13
         jp      z, NEWLINE
-::FZX_BEHAVIOUR equ $-2
+FZX_BEHAVIOUR equ $-2
 CHK_CHAR:
         dec     a               ; now A = char - 1
         cp      (ix+2)          ; compare with lastchar
@@ -238,7 +238,7 @@ WIDTH1:
         jr      nc, EXIT        ; if didn't fall outside the screen then exit
 NEWLINE:
         ld      (hl), MARGIN    ; move to initial column at left margin
-::FZX_MARGIN_L equ $-1
+FZX_MARGIN_L equ $-1
         inc     hl
         ld      a, (hl)         ; now A = line
         sub     (ix+0)          ; now A = line - height
@@ -247,7 +247,7 @@ EXIT:
         ret
 P_FLAG:
         defb        0
-::FZX_COL:
+FZX_COL:
 P_COL:
         defb        MARGIN
 P_LIN:

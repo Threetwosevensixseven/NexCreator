@@ -15,10 +15,16 @@ Zeus_IM                 = 1
 Zeus_IE                 = false
 optionsize 5
 Cspect optionbool 15, -15, "Cspect", false
+UploadNext optionbool 80, -15, "Next", false
 
                         org $8000
 Start:
                         di
+
+                        nextreg $56, 30
+                        nextreg $57, 31
+                        jp $C000
+
                         ld iy, $5C3A
                         ld sp, Stack
                         ld a, $80
@@ -26,14 +32,13 @@ Start:
                         im 1
                         Turbo(MHz14)
                         Contention(false)
-                        //Border(Black)
                         ClsAttrFull(BrightWhiteBlackP)
                         FillLDIR($4000, $1800, $00)
                         ei
                         halt
 
                         ld hl, Font
-                        ld (FZX_FONT), hl
+                        ld (FZX_START.FZX_FONT), hl
                         ld a, -1
                         ld (BankToCheck), a
 
@@ -104,10 +109,7 @@ NoPHiInc:
                         inc c
                         djnz RowLoop
 
-
-FreezeX:                //Border(Red)
-                        //Border(Blue)
-                        jp FreezeX
+FreezeX:                jp FreezeX
 Hex:
                         ld e, "A"-10
                         ret
@@ -178,6 +180,11 @@ disp 0
 
 output_bin              BankName(2), zeuspage(2), $4000
 
+org $C000:
+dispto zeusmmu(30)
+include                 "bank30.asm"
+output_bin              "..\nex\Start15.bin", zeusmmu(30), $4000
+
 // 8k banks 128-133 are not being referenced correctly. It appears they all map to bank 133.
 // 8k banks 134-223 generate a syntax error when passed in to zeusmmu().
 /*for n = 8 to 66
@@ -199,5 +206,10 @@ output_sna "..\nex\NexTest.sna", $FF40, Start
 if enabled Cspect
   zeusinvoke "..\build\NexCreator.bat"
   zeusinvoke "..\build\CSpect.bat", "", false
+endif
+
+if enabled UploadNext
+  zeusinvoke "..\build\NexCreator.bat"
+  zeusinvoke "..\build\UploadNext.bat"
 endif
 

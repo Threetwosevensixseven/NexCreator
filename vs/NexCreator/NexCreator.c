@@ -13,6 +13,7 @@ int address = 0;
 long long filelen;
 int fileadded = 0;
 int palcnt;
+float versionFloat = 1.1;
 
 #define CORE_MAJOR		0
 #define CORE_MINOR		1
@@ -20,7 +21,7 @@ int palcnt;
 
 typedef struct {
     unsigned char Next[4];			//"Next"
-    unsigned char VersionNumber[4];	//"V1.0"
+    unsigned char VersionNumber[4];	//"V1.1" = Gold distro. V1.2 allows entering with PC in a 16K bank >= 8.
     unsigned char RAM_Required;		//0=768K, 1=1792K
     unsigned char NumBanksToLoad;	//0-112 x 16K banks
     unsigned char LoadingScreen;	//1 = layer2 at 16K page 9, 2=ULA loading, 4=LORES, 8=HiRes, 16=HIColour, +128 = don't load palette.
@@ -36,7 +37,8 @@ typedef struct {
     unsigned char dontResetRegs;	//Don't reset the registers
     unsigned char CoreRequired[3];	//CoreRequired byte per value, decimal, not string. ordering... Major, Minor, Subminor
     unsigned char HiResColours;		//to be anded with three, and shifted left three times, and add the mode number for hires and out (255),a
-    unsigned char RestOf512Bytes[512 - (4 + 4 + 1 + 1 + 1 + 1 + 2 + 2 + 2 + 64 + 48 + 1 + 1 + 1 + 1 + 1 + 3 + 1)];
+    unsigned char EntryBank;		//V1.2: 0-112, this 16K bank will be paged in at $C000 before jumping to PC. The default is 0, which is the default upper 16K bank anyway.
+    unsigned char RestOf512Bytes[512 - (4 + 4 + 1 + 1 + 1 + 1 + 2 + 2 + 2 + 64 + 48 + 1 + 1 + 1 + 1 + 1 + 3 + 1 + 1)];
 }HEADER;
 HEADER header512 = {
     "Next",
@@ -80,7 +82,7 @@ unsigned char loadingHiCol[6144 + 6144];
 
 int HiResColour = 0;
 
-unsigned char bigFile[224 * 0x4000];
+unsigned char bigFile[1024 * 1024 * 1024];
 unsigned char temp16k[16384];
 unsigned char inputLine[4096];
 unsigned char filename[1024];
@@ -470,6 +472,18 @@ int main(int c, char **s)
                     ptr++;
                     header512.SP = getInt();
                     printf("SP=$%04x\n", header512.SP);
+                    if (ptr[0] == ',')
+                    {
+                        ptr++;
+                        // This is a v1.2+ feature. Version number is only incremented if this token is parsed and the bank is > 0
+                        header512.EntryBank = getInt();
+                        if (header512.EntryBank > 0 && versionFloat < 1.2)
+                        {
+                            versionFloat = 1.2;
+                            strcpy(header512.VersionNumber, "V1.2");
+                            printf("Entry Bank=%d\n", header512.EntryBank);
+                        }
+                    }
                 }
             }
             else if (((inputLine[1] & 0xdf) == 'M') && ((inputLine[2] & 0xdf) == 'M') && ((inputLine[3] & 0xdf) == 'U'))
@@ -492,6 +506,18 @@ int main(int c, char **s)
                 }
                 printf("File '%s' 8K bank %d, %04x (16K bank %d, %04x)\n", filename, bank8k, address8k, bank, address);
                 addFile(filename);
+            }
+            else if (((inputLine[1] & 0xdf) == 'B') && ((inputLine[2] & 0xdf) == 'A') && ((inputLine[3] & 0xdf) == 'N') && ((inputLine[4] & 0xdf) == 'K'))
+            {
+                // This is a v1.2+ feature. Version number is only incremented if this token is parsed and the bank is > 0
+                ptr = &inputLine[5];
+                header512.EntryBank = getInt();
+                if (header512.EntryBank > 0 && versionFloat < 1.2)
+                {
+                    versionFloat = 1.2;
+                    strcpy(header512.VersionNumber, "V1.2");
+                    printf("Entry Bank=%d\n", header512.EntryBank);
+                }
             }
         }
         else if (inputLine[0] != ';' && inputLine[0] != 0)
@@ -526,6 +552,7 @@ int main(int c, char **s)
     fclose(fin1);
     if ((lastBank>-1) || (fileadded != 0))
     {
+        printf("Generating NEX file in %s format\n", header512.VersionNumber);
         for (i = 0; i < 64 + 48; i++)
         {
             if (header512.Banks[i] > 0) header512.NumBanksToLoad++;

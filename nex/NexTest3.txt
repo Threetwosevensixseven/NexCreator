@@ -1,3 +1,6 @@
+; Minimum core version
+!COR2,0,0
+
 ; PC is $8000, SP is $FF40.
 !PCSP$8000,$FF40
 
