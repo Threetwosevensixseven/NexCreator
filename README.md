@@ -25,6 +25,10 @@ Download a 32-bit Windows version of this fork [here](https://github.com/Threetw
 
 ![8KB Bank Example](https://github.com/Threetwosevensixseven/NexCreator/raw/master/images/example-8k-banks.png)
 
+* Added the optional ability to specify a 16K bank to get paged in at $C000 before jumping to the PC. This can be specified with the !BANK token or with the third argument of the !PCSP token. This allows the contents of your NEX file to completely avoid overwriting any of the 128K banks, in particular the BASIC sysvars in page 5 and NextZXOS working data in pages 7 and 8.
+
+![BASIC-Friendly Example](https://github.com/Threetwosevensixseven/NexCreator/raw/master/images/example-basic-friendly.png)
+
 ## Acknowledgements
 ### NexCreator
 NexCreator is © 2018 Jim Bagley.
