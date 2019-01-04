@@ -13,7 +13,7 @@ int address = 0;
 long long filelen;
 int fileadded = 0;
 int palcnt;
-float versionFloat = 1.1;
+int versionDecimal = 11; // 11 = 1.1, 12 = 1.2, etc
 
 #define CORE_MAJOR		0
 #define CORE_MINOR		1
@@ -477,9 +477,9 @@ int main(int c, char **s)
                         ptr++;
                         // This is a v1.2+ feature. Version number is only incremented if this token is parsed and the bank is > 0
                         header512.EntryBank = getInt();
-                        if (header512.EntryBank > 0 && versionFloat < 1.2)
+                        if (header512.EntryBank > 0 && versionDecimal < 12)
                         {
-                            versionFloat = 1.2;
+                            versionDecimal = 12;
                             strcpy(header512.VersionNumber, "V1.2");
                             printf("Entry Bank=%d\n", header512.EntryBank);
                         }
@@ -512,9 +512,9 @@ int main(int c, char **s)
                 // This is a v1.2+ feature. Version number is only incremented if this token is parsed and the bank is > 0
                 ptr = &inputLine[5];
                 header512.EntryBank = getInt();
-                if (header512.EntryBank > 0 && versionFloat < 1.2)
+                if (header512.EntryBank > 0 && versionDecimal < 12)
                 {
-                    versionFloat = 1.2;
+                    versionDecimal = 12;
                     strcpy(header512.VersionNumber, "V1.2");
                     printf("Entry Bank=%d\n", header512.EntryBank);
                 }
