@@ -15,3 +15,4 @@
 /vs/GenerateMMUBanks/obj
 /vs/NexCreator/Debug/*.enc
 /vs/*.opendb
+/vs/ipch/NEXCREATOR-36ea4769/*.ipch
