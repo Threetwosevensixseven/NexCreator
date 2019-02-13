@@ -1,0 +1,82 @@
+NEX FILES
+=========
+
+HEADER
+------
+typedef struct {
+    unsigned char Next[4];			//"Next"
+    unsigned char VersionNumber[4];	//"V1.1" = Gold distro. V1.2 allows entering with PC in a 16K bank >= 8.
+    unsigned char RAM_Required;		//0=768K, 1=1792K
+    unsigned char NumBanksToLoad;	//0-112 x 16K banks
+    unsigned char LoadingScreen;	//1 = layer2 at 16K page 9, 2=ULA loading, 4=LORES, 8=HiRes, 16=HIColour, +128 = don't load palette.
+    unsigned char BorderColour;		//0-7 ld a,BorderColour:out(254),a
+    unsigned short SP;				//Stack Pointer
+    unsigned short PC;				//Code Entry Point : $0000 = Don't run just load.
+    unsigned short NumExtraFiles;	//NumExtraFiles
+    unsigned char Banks[64 + 48];		//Which 16K Banks load.	: Bank 5 = $0000-$3fff, Bank 2 = $4000-$7fff, Bank 0 = $c000-$ffff
+    unsigned char loadingBar;		//Loading bar off=0/on=1
+    unsigned char loadingColour;	//Loading bar Layer2 index colour
+    unsigned char loadingBankDelay;	//Delay after each bank
+    unsigned char loadedDelay;		//Delay (frames) after loading before running
+    unsigned char dontResetRegs;	//Don't reset the registers
+    unsigned char CoreRequired[3];	//CoreRequired byte per value, decimal, not string. ordering... Major, Minor, Subminor
+    unsigned char HiResColours;		//to be anded with three, and shifted left three times, and add the mode number for hires and out (255),a
+    unsigned char EntryBank;		//V1.2: 0-112, this 16K bank will be paged in at $C000 before jumping to PC. The default is 0, which is the default upper 16K bank anyway.
+    unsigned char RestOf512Bytes[512 - (4 + 4 + 1 + 1 + 1 + 1 + 2 + 2 + 2 + 64 + 48 + 1 + 1 + 1 + 1 + 1 + 3 + 1 + 1)];
+}HEADER;
+
+Next: Always "Next"
+VersionNumber: "V1.1" unless EntryBank > 0, in which case "V1.2"
+RAM_Required: Can be calculated. Sould be 1 if any included 16K bank number >= 48. I changed Jim's creator to do this; he had it as 1 if 16K bank COUNT >= 48.
+NumExtraFiles: Unsure about this. Jim never sets in his creator so leave it as blank. I think it's intended for extra files the user can load at runtime? Or future expansion?
+Banks: Count of 16K banks. The first 8 are as in zeuspage(N), the rest are as in zeusmmu(N/2)
+loadingBar: Only used with layer 2 loading screen (when LoadingScreen bit 1 set)
+loadingColour: Only used with layer 2 loading screen (when LoadingScreen bit 1 set)
+loadingBankDelay: Applies regardless of loading screen AFAIK. Is in frames (20ms)
+loadedDelay: In frames (20ms)
+EntryBank: this is my addition, sets VersionNumber to at least "V1.2"
+
+IMPLEMENTATION
+--------------
+Header data falls into three categories:
+ - General:        OUTPUT_NEX directive
+ - Banks:          OUTPUT_NEX_BLOCK directive
+ - Loading screen: OUTPUT_NEX_SCREEN directive?
+
+OUTPUT_NEX
+----------
+output_nex "pc filename", SP, PC[, CoreRequired[, EntryBank[, loadedDelay[, dontResetRegs]]]]
+CoreRequired (string) defaults to "0.0.0", in which case loader never fails core version check
+EntryBank (byte) defaults to 0, in which case PC would be expected to appear in 16k banks 5/2/0.
+If EntryBank present, PC would be exected to be $C000..FFFF when EntryBank was paged in at $C000
+loadedDelay (bool) defaults to false
+dontResetRegs (bool) defaults to false
+
+OUTPUT_NEX_BLOCK
+----------------
+output_nex_block "pc filename",Start,Length
+output_nex_block "pc filename",Start,Length[,Start2,Length2[,Start3,Length3[,...]]]
+Same syntax as output_tzx_block but implementation differs.
+Start is 32 bit address corresponding to zeuspage() and zeusmmu() addresses.
+Length is unrestricted.
+Evaluate which 16K banks Start and Start+Length appear in, and include ALL of these banks in the output file.
+Including means setting the corresponding header Banks[N] field to 0, and appending 16KB of data to the end of the file (after any appended loading screen and/or pallets)... even if Start and Length only intersected with one byte of this 16K bank.
+Appended banks are in numerical order, so if first 8 bytes of header Banks field were 101001000 then the first three appended banks would be 0, 2 and 5.
+
+OUTPUT_NEX_SCREEN
+-----------------
+output_nex_screen "pc output filename", "screen filename"[, loadingBar[, loadingColour[, IncludePalette | "Palette FileName"], HiResColours]]]
+I don't see any benefit in making screen come from zeus memory rather than a file, as this just limits the size of NEx file you can build. It's unlikely you would be including the loading screen in your project for use at runtime anyway.
+Suggest Loading screen is same format as header byte, but with bit 7 ignored
+Bit 7 should be calculated from the length of the screen file; all screen files are well-defined sizes, so files including palettes would be 256 or 512 bytes larger.
+But allowing IncludePalette as an optional bool parameter allows you to overwrite this, and trim the palette from the screen file before appending it.
+AFAIK the loader always expects 256 byte palettes (each byte is RGB332). If you wanted to you could also handle files with 512 byte palettes (RGB333) by downconverting each pair of bytes. You can save a 512 byte palette from the multiface, so we can see what the format is.
+If you wanted to you could specify a separate palette from optional "Palette FileName" (string) parameter. This would be read from disk and interpreted the same as the palette file inside the "screen filename" - either 8 or 156 bit.
+No reason to specify LoadingScreen as an option, as you can infer it from the file size. Hopefully - are Timex hires and hicolor the same size? If not will have to be a parameter
+HiResColours only applicable if screen file is a timex hires.
+IncludePalette (bool), "Palette FileName" (string), and HiResColours (byte) are all different datatypes, so you can parse this ok.
+
+Will need to come up with test cases for all these combinations.
+
+
+

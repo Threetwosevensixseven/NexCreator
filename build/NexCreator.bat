@@ -3,6 +3,6 @@
 C:
 CD %~dp0
 
-..\vs\Debug\NexCreator.exe ..\nex\NexTest5.txt ..\sd\NexTest.nex
+..\vs\Debug\NexCreator.exe ..\nex\NexTest6.txt ..\sd\NexTest.nex
 
 ::pause

@@ -292,7 +292,7 @@ int main(int c, char **s)
                         header512.CoreRequired[CORE_SUBMINOR] = getInt();	//Delay after each bank
                     }
                 }
-                printf("Requires Core %d,%d,%d or greater\n", header512.CoreRequired[CORE_MAJOR], header512.CoreRequired[CORE_MINOR], header512.CoreRequired[CORE_SUBMINOR]);
+                printf("Requires Core %d.%d.%d or greater\n", header512.CoreRequired[CORE_MAJOR], header512.CoreRequired[CORE_MINOR], header512.CoreRequired[CORE_SUBMINOR]);
             }
             else if (((inputLine[1] & 0xdf) == 'B') && ((inputLine[2] & 0xdf) == 'M') && ((inputLine[3] & 0xdf) == 'P'))
             {
@@ -554,10 +554,11 @@ int main(int c, char **s)
     {
         printf("Generating NEX file in %s format\n", header512.VersionNumber);
         for (i = 0; i < 64 + 48; i++)
-        {
-            if (header512.Banks[i] > 0) header512.NumBanksToLoad++;
-            if (i >= 48) header512.RAM_Required = 1;
-        }
+            if (header512.Banks[i] > 0) 
+                header512.NumBanksToLoad++;
+        if (header512.NumBanksToLoad >= 48)
+            header512.RAM_Required = 1;
+        printf("Generating NEX file for %dMB machine\n", header512.RAM_Required + 1);
         fout = fopen(s[2], "wb");
         if (fout == NULL)
         {
