@@ -275,7 +275,23 @@ loadbig
 	NEXTREG_nn 20,$e3													; transparent index
 	NEXTREG_nn 21,1														; priorities + sprite over border + sprite enable
 	NEXTREG_nn 22,0:NEXTREG_nn 23,0										; layer2 xy scroll
-	NEXTREG_nn 27,7														; clipwindow index reset all 3
+	NEXTREG_nn 28,0														; clipwindow index reset all 4
+	NEXTREG_nn 24,0														; reset layer 2 clip
+	NEXTREG_nn 24,255
+	NEXTREG_nn 24,0
+	NEXTREG_nn 24,191
+	NEXTREG_nn 25,0														; reset sprites clip
+	NEXTREG_nn 25,255
+	NEXTREG_nn 25,0
+	NEXTREG_nn 25,191
+	NEXTREG_nn 26,0														; reset ULA clip
+	NEXTREG_nn 26,255
+	NEXTREG_nn 26,0
+	NEXTREG_nn 26,191
+	NEXTREG_nn 27,0														; reset tilemap clip
+	NEXTREG_nn 27,159
+	NEXTREG_nn 27,0
+	NEXTREG_nn 27,255
 	NEXTREG_nn 24,0:NEXTREG_nn 24,255:NEXTREG_nn 24,0:NEXTREG_nn 24,191	; clip window layer2
 	NEXTREG_nn 25,0:NEXTREG_nn 25,255:NEXTREG_nn 25,0:NEXTREG_nn 25,191	; clip window sprites
 	NEXTREG_nn 26,0:NEXTREG_nn 26,255:NEXTREG_nn 26,0:NEXTREG_nn 26,191	; clip window ula
