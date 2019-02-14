@@ -1,6 +1,28 @@
 ;-------------------------------
 ; .nexload 
-; © Jim Bagley 2018
+; © Jim Bagley 2018-2019
+; 
+; Changelist:
+; v6  14/02/2019 RVG   Bugfix: NEXLOAD now resets all four sets of clip indices 
+;  					   correctly.
+; v5  03/01/2019 RVG   .nexload now reads the V1.2 HEADER_ENTRYBANK byte, and 
+;					   pages in this 16K bank at $C000 before jumping to the PC. 
+;					   This only happens if HEADER_DONTRESETNEXTREGS is 0. The 
+;					   user must be sure to create a suitable entry point code 
+;					   in this bank somewhere between $C000..FFFF, and set PC 
+;					   accordingly, either in the input SNA or with the !PCSP 
+;					   token.
+;					   Note: .nexload CSpect test mode (SNA-based) still needs 
+;					   fixing up to work with the custom BASIC error changes.
+; v4  03/01/2019 RVG   Bugfix: .nexload now checks the subminor core version 
+;                      correctly.
+; v3  03/01/2019 RVG  .nexload gives an core update error when it encounters 
+;                     .nex files requiring core version newer than the current 
+;					   core.
+; v2  03/01/2019 RVG  .nexload gives an nexload update error when it encounters 
+;                     .nex files newer than it can handle.
+; v1  14/09/2018 JB   Jim's final version for V1.1 format.
+;
 ;-------------------------------
 	device zxspectrum48
 ;-------------------------------

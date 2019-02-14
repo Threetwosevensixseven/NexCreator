@@ -1,3 +1,37 @@
+/*
+------------------------------
+.NexCreator.exe
+© Jim Bagley 2018-2019
+
+Changelist:
+v11  03/01/2018  RVG  Bugfix: NexCreator was always creating files for 2MB machines.
+v10  03/01/2018  RVG  Removed some warnings when compiled with gcc.
+v9   03/01/2018  RVG  NexCreator version check is now down with an integer to avoid float 
+                      precision issues.
+v8   29/12/2018  RVG  Bugfix: The eight 16KB SNA banks were not defaulting to being included
+                      if the extra parameters were omitted.
+v7   29/12/2018  RVG  Bugfix: input file pointer wasn't advanced before reading HiResColour 
+                      from the !BMP line.
+v6   29/12/2018  RVG  Enhanced NexCreator with the !MMU token. This works the same as loading
+                      files, except it lets you specify 8KB bank numbers instead of 16KB 
+                      numbers. For odd-numbered banks, the address has $2000 added to it.
+                      GenerateMMUBanks now generates a set of 8KB test data files in the nex 
+                      directory, as well as the 16KB files. The NexTest3.txt example
+                      demonstrates this.
+v5   29/12/2018  RVG  Extended NexCreator to take a !PCSP line, so you don't need to specify
+                      an input SNA file. In the NexTest2.txt example, !PCSP$8000,$FF40 set 
+                      the PC to $8000 and the SP to $FF40.
+v4   29/12/2018  RVG  Extended NexCreator to take 8 comma separated values after the SNA
+                      file, to choose which SNA pages to include. In the NexTest.nex example, 
+                      the values are 1,1,0,0,0,0,0,0, meaning only pages 5 and 2 are included.
+                      These values represent pages 5,2,0,1,3,4,6,7,respectively.
+v3   28/12/2018  RVG  Nex files are now marked as 2MB if they use 16K banks 48 or above, 
+                      instead of counting the number of banks.
+v2   06/10/2018  JB   Fixes for palette loading. Jim's final version for V1.1 format.
+v1   09/09/2018  JB   Jim's initial public release. 
+------------------------------
+*/
+
 #include "stdio.h"
 #include "stdlib.h"
 
