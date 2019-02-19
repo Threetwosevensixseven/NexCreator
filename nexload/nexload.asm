@@ -1,9 +1,16 @@
 ;-------------------------------
 ; .nexload 
 ; © Jim Bagley 2018-2019
+;
+; Assembles with sjasmplus - https://github.com/z00m128/sjasmplus
 ; 
 ; Changelist:
-; v6  14/02/2019 RVG   Bugfix: NEXLOAD now resets all four sets of clip indices 
+; v8  19/02/2019 RVG   New V1.2 feature: leave the .NEX file handle open, and
+;					   specify an address between $4000-FFFF to write the file
+;				       handle byte into.
+; v7  19/02/2019 RVG   Bugfix: .nexload clip indices were still not being reset 
+;					   correctly.
+; v6  14/02/2019 RVG   Bugfix: .nexload now resets all four sets of clip indices 
 ;  					   correctly.
 ; v5  03/01/2019 RVG   .nexload now reads the V1.2 HEADER_ENTRYBANK byte, and 
 ;					   pages in this 16K bank at $C000 before jumping to the PC. 
@@ -53,6 +60,8 @@ HEADER_CORE_MINOR			= 136	;1
 HEADER_CORE_SUBMINOR		= 137	;1
 HEADER_HIRESCOL				= 138	;1 // if non zero is to be 
 HEADER_ENTRYBANK			= 139	;1 // V1.2, 16K bank to page into $C000 at exit
+HEADER_FILEHANDLEADDR		= 140   ;2 // V1.2, if address is nonzero then file will be left open, and the handle written into a single byte at this address.
+									;     Should be between $4000-FFFF in banks 5/2/0, or banks 5/2/N if HEADER_ENTRYBANK is non-zero.
 
 LAYER_2_PAGE				= 9
 LAYER_2_PAGE_0				= 9
@@ -242,6 +251,7 @@ loadbig
 	ld	hl,($c000+HEADER_SP):ld (SPReg),hl
 	ld	hl,($c000+HEADER_LOADBAR):ld (LoadBar),hl
 	ld	hl,($c000+HEADER_LOADDEL):ld (LoadDel),hl
+	ld	hl,($c000+HEADER_FILEHANDLEADDR):ld (HandleAddr),hl
 
 	ld hl,(CoreMajor):ld de,(CoreSub)
 	ld a,($c000+HEADER_CORE_MAJOR)					:cp l:jr z,.o1:jp nc,coreUpdate:jr .ok
@@ -297,7 +307,7 @@ loadbig
 	NEXTREG_nn 20,$e3													; transparent index
 	NEXTREG_nn 21,1														; priorities + sprite over border + sprite enable
 	NEXTREG_nn 22,0:NEXTREG_nn 23,0										; layer2 xy scroll
-	NEXTREG_nn 28,0														; clipwindow index reset all 4
+	NEXTREG_nn 28,%1111										     		; clipwindow index reset all 4
 	NEXTREG_nn 24,0														; reset layer 2 clip
 	NEXTREG_nn 24,255
 	NEXTREG_nn 24,0
@@ -472,14 +482,27 @@ loadbig
 	
 	pop af:inc a:cp 112:jr nz,.lp;48+64:jr nz,.lp
 
+	ld hl, (HandleAddr)
+	ld a, h
+	or l
+	jp nz, .noClose	
 	call fclose
+.noClose
 
 	db $3E ;ld a,n
 .entryBankSMC ; Read entry bank
 	db 0
 	add a,a:NEXTREG_A MMU_REGISTER_6 ; Set upper 16K to entry bank
 	inc a:NEXTREG_A MMU_REGISTER_7	 ; (V1.2 feature)
-	
+
+	ld hl, (HandleAddr)
+	ld a, h
+	or l	
+	jp z, .noWriteHandle	
+	ld a, (handle)
+	ld (hl), a
+.noWriteHandle	
+
 ;.stop	inc a:and 7:out (254),a:jr .stop
 
 	ld a,(StartDel)
@@ -639,6 +662,7 @@ NumFiles	dw	0
 LocalBanks	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 		db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 LoaderVersion db $12 ; V1.2 in bcd
+HandleAddr  dw 0
 
 print_rst16	ld a,(hl):inc hl:or a:ret z:rst 16:jr print_rst16
 
