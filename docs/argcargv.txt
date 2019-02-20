@@ -1,0 +1,1 @@
+AA: There are several ways argc.argv can be parsed - I would use the "raw argc,argv" interface that doesn't process anything and expects BC=argc, HL=argv.

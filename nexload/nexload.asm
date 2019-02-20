@@ -5,6 +5,9 @@
 ; Assembles with sjasmplus - https://github.com/z00m128/sjasmplus
 ; 
 ; Changelist:
+; v9  19/02/2019 RVG   If the word at HEADER_FILEHANDLEADDR < $4000, the open 
+;					   file handle is returned in register C rather than an 
+;					   address.
 ; v8  19/02/2019 RVG   New V1.2 feature: leave the .NEX file handle open, and
 ;					   specify an address between $4000-FFFF to write the file
 ;				       handle byte into.
@@ -498,7 +501,12 @@ loadbig
 	ld hl, (HandleAddr)
 	ld a, h
 	or l	
-	jp z, .noWriteHandle	
+	jp z, .noWriteHandle
+	ld bc, $4000
+	or a
+	sbc hl, bc	
+	add hl, bc
+	jp c, .setRegHandle
 	ld a, (handle)
 	ld (hl), a
 .noWriteHandle	
@@ -511,6 +519,10 @@ loadbig
 
 	ld	hl,(PCReg):ld sp,(SPReg)
 	ld a,h:or l:jr z,.returnToBasic
+	db 01 ; ld bc, $00nn 
+.regBCHandleSMC
+	db 0
+	db 0
 	IFDEF testing
 		jp (hl)
 	ELSE
@@ -531,6 +543,10 @@ loadbig
 	call fclose
 	ld a,($5b5c):and 7:add a,a:NEXTREG_A MMU_REGISTER_6:inc a:NEXTREG_A MMU_REGISTER_7
 	ret
+.setRegHandle
+	ld a, (handle)
+	ld (.regBCHandleSMC), a
+	jp .noWriteHandle	
 
 ;--------------------
 delay	ld a,(LoadDel)
