@@ -5,8 +5,8 @@ CD %~dp0
 
 sjasmplus nexload.asm --sym=nexload.sym || goto err
 copy nexload.sna ..\sd\*.*
-copy NEXLOAD. q:\dot\*.*
-copy NEXLOAD. q:\bin\*.*
+::copy NEXLOAD. q:\dot\*.*
+::copy NEXLOAD. q:\bin\*.*
 :: ..\build\pskill.exe -t cspect.exe
 :: "C:\Program Files (x86)\CSpect1_14\CSpect.exe" -s14 -w3 -zxnext -exit -zx128 -brk -mmc=..\sd\ ..\sd\nexload.sna
 

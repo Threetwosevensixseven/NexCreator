@@ -5,6 +5,12 @@
 ; Assembles with sjasmplus - https://github.com/z00m128/sjasmplus
 ; 
 ; Changelist:
+; v13 02/11/2019 RVG   DMA mode was originally being set to ZXN. Undid previous
+;                      DMA change in v12.
+; v12 02/11/2019 RVG   Now sets Turbo mode to 28MHz instead of 14MHz.
+;                      Now preserves whether F3 and F8 were previously enabled
+;                      or disabled.
+;                      DMA mode is now always set to ZXN instead of Z80.
 ; v11 24/07/2019 RVG   Now does core and nex version checks before clearing ULA
 ;                      screen and setting border, and doesn't CLS when returning
 ;                      custom BASIC errors. This plays nicer with different
@@ -134,6 +140,7 @@ TBBLUE_REGISTER_SELECT			equ $243B
 	MACRO SWAPNIB: dw $23ED: ENDM
 	MACRO NEXTREG_A register:dw $92ED:db register:ENDM			; Set Next hardware register using A
 	MACRO NEXTREG_nn register, value:dw $91ED:db register:db value:ENDM	; Set Next hardware register using an immediate value
+	MACRO NEXTREG_RD register:ld bc,TBBLUE_REGISTER_SELECT:ld a,register:out (c),a:inc b:in a,(c):ENDM ; Read register into A
 	MACRO BORDER colour:ld a,colour:out ($FE),a:ld a,colour*8:ld (23624),a:ENDM
 	MACRO FREEZE:BORDER 1:BORDER 2:jr$-18:ENDM
 	MACRO PRINT_CHAN chan:ld a,chan:rst $18:dw 5981:ENDM
@@ -286,9 +293,9 @@ loadbig
 ;	NEXTREG_nn 6,200
 ;	11001000
 	ld a,PERIPHERAL_2_REGISTER:ld bc,TBBLUE_REGISTER_SELECT:out (c),a:inc b:in a,(c)
-    set 7,a				; turbo on
-    res 6,a				; dac i2s (don't think this does anything)
-	res 5,a    			; lightpen off
+    ;set 7,a			; preserve F8 enabled/disabled setting
+    res 6,a				; set DMA to ZXN mode
+	;res 5,a    		; preserve F3 enabled/disabled setting
    	res 4,a				; DivMMC automatic paging off
     set 3,a				; mulitface - add to build options so can be selected
 ;   res 2,a				; 2 = ps2 mode - leave to option control
@@ -297,7 +304,7 @@ loadbig
 	; 			bits 1-0 = Audio chip mode (0- = disabled, 10 = YM, 11 = AY)
 	;			11 = disable audio, or appears to be the case
 
-    	out (c),a
+    out (c),a
 
 ;	NEXTREG_nn 8,254
 ; 	11111110
@@ -315,7 +322,7 @@ loadbig
 
 ;    ld a,8:ld bc,$243b:out (c),a:inc b:in a,(c):set 1,a:set 5,a:out (c),a	 ;PERIPHERAL_3_REGISTER
 
-	NEXTREG_nn 7,%10	; turbo 14Mhz
+	NEXTREG_nn 7,%11	; turbo 28Mhz
 
 	NEXTREG_nn 18,9														; layer2 page
 	NEXTREG_nn 19,12													; layer2 shadow page
