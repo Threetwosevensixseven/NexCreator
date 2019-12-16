@@ -5,7 +5,11 @@
 ; Assembles with sjasmplus - https://github.com/z00m128/sjasmplus
 ; 
 ; Changelist:
-; v14 15/12/2019 RVG   Running without any arguments shows more expansive help,
+; v14 15/12/2019 RVG   New V1.3 feature: if the byte at HEADER_EXPBUSDISABLE 
+;                      (offset 0x8e) is zero (default), disable the expansion
+;                      bus by writing 0 to the top four bits of nextreg 0x80, 
+;                      otherwise do nothing.                    
+;                      Running without any arguments shows more expansive help,
 ;                      including the dot command and format versions.
 ;                      Messages are now printed with interrupts enabled, and 
 ;                      saying no to the Scroll? message, or any esxDOS errors,
@@ -81,6 +85,7 @@ HEADER_HIRESCOL				= 138	;1 // if non zero is to be
 HEADER_ENTRYBANK			= 139	;1 // V1.2, 16K bank to page into $C000 at exit
 HEADER_FILEHANDLEADDR		= 140   ;2 // V1.2, if address is nonzero then file will be left open, and the handle written into a single byte at this address.
 									;     Should be between $4000-FFFF in banks 5/2/0, or banks 5/2/N if HEADER_ENTRYBANK is non-zero.
+HEADER_EXPBUSDISABLE        = 142	;1 // V1.3, if zero (default) will disable the expansion bus by writing 0 to the top four bits of nextreg 0x80. If non-zero do nothing.								
 
 LAYER_2_PAGE				= 9
 LAYER_2_PAGE_0				= 9
@@ -138,7 +143,7 @@ PERIPHERAL_3_REGISTER			equ $08		;Enables Stereo, Internal Speaker, SpecDrum, Ti
 TBBLUE_REGISTER_SELECT			equ $243B
 
 	MACRO DOT_VERSION:db "v14":ENDM
-	MACRO FMT_VERSION:db "V1.2":ENDM
+	MACRO FMT_VERSION:db "V1.3":ENDM
 	MACRO SetSpriteControlRegister:NEXTREG_A SPRITE_CONTROL_REGISTER:ENDM
 	MACRO Set14mhz:NEXTREG_nn TURBO_CONTROL_REGISTER,%10:ENDM
 	MACRO BREAK:dw $01DD:ENDM
@@ -260,13 +265,19 @@ loadbig
 	ld a,2*2:NEXTREG_A MMU_REGISTER_4
 	inc a:NEXTREG_A MMU_REGISTER_5
 	xor a:NEXTREG_A MMU_REGISTER_6:inc a:NEXTREG_A MMU_REGISTER_7
-
+	
 ;	pop ix
 ;	push ix:call setdrv:pop ix:call fopen
 	ld	ix,$c000:ld bc,$200:call fread
 	
 	ld a,($c000+HEADER_VERSION_MAJOR):sub '0':and %1111:SWAPNIB:ld b,a:ld a,($c000+HEADER_VERSION_MINOR):and %1111:or b:ld b,a
 	ld a,(LoaderVersion):cp b:jp c,loaderUpdate
+	
+;	The default value 0 should disable the expansion bus by writing 0 to the top four bits of nextreg 0x80. If non-zero do nothing	
+	ld a,($c000+HEADER_EXPBUSDISABLE):or a:jp nz,.noDisableBus
+	NEXTREG_RD 0x80:and %00001111:NEXTREG_A 0x80
+;	HEADER_EXPBUSDISABLE
+.noDisableBus	
 		
 	ld	hl,$c000+HEADER_BANKS:ld de,LocalBanks:ld bc,48+64:ldir
 	ld	hl,($c000+HEADER_PC):ld (PCReg),hl
