@@ -5,6 +5,11 @@
 ; Assembles with sjasmplus - https://github.com/z00m128/sjasmplus
 ; 
 ; Changelist:
+; v14 15/12/2019 RVG   Running without any arguments shows more expansive help,
+;                      including the dot command and format versions.
+;                      Messages are now printed with interrupts enabled, and 
+;                      saying no to the Scroll? message, or any esxDOS errors,
+;                      now exits safely with a D BREAK - CONT repeats error.
 ; v13 02/11/2019 RVG   DMA mode was originally being set to ZXN. Undid previous
 ;                      DMA change in v12.
 ; v12 02/11/2019 RVG   Now sets Turbo mode to 28MHz instead of 14MHz.
@@ -48,7 +53,6 @@
 ;-------------------------------
 	device zxspectrum48
 ;-------------------------------
-
 ;	DEFINE testing
 ;	DEFINE testing8000	; define this to test just loading images
 	
@@ -133,6 +137,8 @@ PERIPHERAL_2_REGISTER			equ $06		;Enables Acceleration, Lightpen, DivMMC, Multif
 PERIPHERAL_3_REGISTER			equ $08		;Enables Stereo, Internal Speaker, SpecDrum, Timex Video Modes, Turbo Sound Next and NTSC/PAL selection.
 TBBLUE_REGISTER_SELECT			equ $243B
 
+	MACRO DOT_VERSION:db "v14":ENDM
+	MACRO FMT_VERSION:db "V1.2":ENDM
 	MACRO SetSpriteControlRegister:NEXTREG_A SPRITE_CONTROL_REGISTER:ENDM
 	MACRO Set14mhz:NEXTREG_nn TURBO_CONTROL_REGISTER,%10:ENDM
 	MACRO BREAK:dw $01DD:ENDM
@@ -144,6 +150,7 @@ TBBLUE_REGISTER_SELECT			equ $243B
 	MACRO BORDER colour:ld a,colour:out ($FE),a:ld a,colour*8:ld (23624),a:ENDM
 	MACRO FREEZE:BORDER 1:BORDER 2:jr$-18:ENDM
 	MACRO PRINT_CHAN chan:ld a,chan:rst $18:dw 5981:ENDM
+	MACRO CSBREAK:push bc:db $DD,$01:nop:nop:pop bc:ENDM ; Does a safe breakpoint in CSpect. Should not crash if accidentally run on the Next board
 
 ;-------------------------------
 
@@ -174,7 +181,7 @@ start
 	ld (oldStack),sp	
 
 	ld	a,h:or l:jr nz,.gl
-	ld	hl,emptyline:call print_rst16:jr finish
+	ld	hl,help:call print_rst16:jr finish
 .gl	ld	de,filename:ld b,127
 .bl	ld	a,(hl):cp ":":jr z,.dn:or a:jr z,.dn:cp 13:jr z,.dn:bit 7,a:jr nz,.dn
 	ld	(de),a:inc hl:inc de:djnz .bl
@@ -228,7 +235,8 @@ loadbig
 	ELSE
 	ld	sp,$3fff
 	ENDIF	
-	Set14mhz	
+	Set14mhz
+	ld hl, esxDOSerrorHandler:rst 8:db $95 ; install M_ERRH error handler	
 	push ix:call fopen:pop ix
 	call getCurrentCore
 	
@@ -633,7 +641,10 @@ returnError2
 	xor a
 	scf
 	ei
-	ret
+	ret	
+esxDOSerrorHandler
+	 ld hl, breakerrortext
+     jr returnError
 
 dec8
 	ld de,100
@@ -659,7 +670,9 @@ coretext2
 coreerrortext
     db  "Update cor",'e'|128
 fileversionerrortext
-    db  "Update .nexloa",'d'|128	
+    db  "Update .nexloa",'d'|128
+breakerrortext
+	db	"D BREAK - CONT repeat",'s'|128
 loadervertext
     db  "This is a V"
 loadervertextMajor
@@ -691,11 +704,19 @@ LocalBanks	db	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 LoaderVersion db $12 ; V1.2 in bcd
 HandleAddr  dw 0
 
-print_rst16	ld a,(hl):inc hl:or a:ret z:rst 16:jr print_rst16
+print_rst16	ei:ld a,(hl):inc hl:or a:jr z,print_ret:rst 16:jr print_rst16
+print_ret	di:ret
 
 filename	db		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 			db		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-emptyline	db		".nexload <filename> to load nex file.",13,0
+help		db		"NEXLOAD "
+			DOT_VERSION
+			db 		13, "Loads and runs .NEX files",13,13,"nexload",13,"Show help",13,13,"nexload FILENAME",13,"Load a .NEX file",13,13
+			db		"FILENAME",13,"File to load, which can include an optional drive or path",13,13,"NEXLOAD "
+			DOT_VERSION
+			db 		" can load .NEX files up to and including format "
+			FMT_VERSION
+			db 		13,13,"Copyright ",127," 2018-2019 Jim Bagley",13,0
 esxError	ds 		34,128
 
 header		equ		$
