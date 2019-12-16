@@ -6,9 +6,9 @@
 ; 
 ; Changelist:
 ; v14 15/12/2019 RVG   New V1.3 feature: if the byte at HEADER_EXPBUSDISABLE 
-;                      (offset 0x8e) is zero (default), disable the expansion
-;                      bus by writing 0 to the top four bits of nextreg 0x80, 
-;                      otherwise do nothing.                    
+;                      (offset 0x8e) is zero (default) and the core is 3.05.00 
+;                      or newer, disable the expansion bus by writing 0 to the 
+;                      top four bits of nextreg 0x80, otherwise do nothing.                    
 ;                      Running without any arguments shows more expansive help,
 ;                      including the dot command and format versions.
 ;                      Messages are now printed with interrupts enabled, and 
@@ -156,6 +156,8 @@ TBBLUE_REGISTER_SELECT			equ $243B
 	MACRO FREEZE:BORDER 1:BORDER 2:jr$-18:ENDM
 	MACRO PRINT_CHAN chan:ld a,chan:rst $18:dw 5981:ENDM
 	MACRO CSBREAK:push bc:db $DD,$01:nop:nop:pop bc:ENDM ; Does a safe breakpoint in CSpect. Should not crash if accidentally run on the Next board
+	MACRO CPHLDE:or a:sbc hl,de:add hl,de:ENDM
+	MACRO CPHLBC:or a:sbc hl,bc:add hl,bc:ENDM
 
 ;-------------------------------
 
@@ -215,11 +217,13 @@ getCurrentCore
     ld a,NEXT_VERSION_REGISTER
     ld bc,TBBLUE_REGISTER_SELECT
     out (c),a:inc b:in a,(c)		; major and minor
+	ld (CoreFull+1),a  				; Full version MSB
     ld d,a
     and %1111:ld (CoreMinor),a
     ld a,d:SWAPNIB:and %1111:ld (CoreMajor),a
     ld a,CORE_VERSION_REGISTER:dec b
     out (c),a:inc b:in a,(c):ld (CoreSub),a		; sub minor
+	ld (CoreFull),a							; Full version LSB
 	ret
 	
 ;-------------------------------
@@ -275,8 +279,10 @@ loadbig
 	
 ;	The default value 0 should disable the expansion bus by writing 0 to the top four bits of nextreg 0x80. If non-zero do nothing	
 	ld a,($c000+HEADER_EXPBUSDISABLE):or a:jp nz,.noDisableBus
+;	But if core < 3.00.05, do nothing either
+	ld hl,(CoreFull):ld de,$3005:CPHLDE:jr c,.noDisableBus
+;	Disable bus
 	NEXTREG_RD 0x80:and %00001111:NEXTREG_A 0x80
-;	HEADER_EXPBUSDISABLE
 .noDisableBus	
 		
 	ld	hl,$c000+HEADER_BANKS:ld de,LocalBanks:ld bc,48+64:ldir
@@ -699,6 +705,7 @@ DefaultPalette
 CoreMajor	db 	0
 CoreMinor	db	0
 CoreSub		db 	0
+CoreFull	dw	0
 
 oldStack	dw	0
 IsLoadingScr db 0
