@@ -65,3 +65,5 @@ You can freely use the FZX driver code in your programs (even for commercial rel
 The only requirement is that you must clearly indicate in your documentation that you have either used this code or created a derivative work based on it.
 
 The FZX font format is an open standard. You can freely use it to design and distribute new fonts, or use it inside any programs (even commercial releases). The only requirement is that this standard should be strictly followed, without making irregular changes that could potentially cause incompatibilities between fonts and programs on different platforms.
+
+[ZX Spectrum Next](https://www.specnext.com/about/) is a trademark of SpecNext Ltd.
