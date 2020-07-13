@@ -1,12 +1,18 @@
 ;-------------------------------
 ; .nexload 
-; © Jim Bagley 2018-2019
+; © Jim Bagley 2018-2020
 ;
 ; Assembles with sjasmplus - https://github.com/z00m128/sjasmplus
 ; 
 ; Changelist:
+; v15 13/07/2020 RVG   Pauses are now done by waiting for video lines without
+;                      enabling interrupts.
+;                      AYs are now held in reset for one frame before loading,
+;                      to kill any possible held notes.
+;                      DMA mode is no longer set in nextreg 6, as bit 6 is now
+;                      repurposed as "divert BEEP only to internal speaker".
 ; v14 15/12/2019 RVG   New V1.3 feature: if the byte at HEADER_EXPBUSDISABLE 
-;                      (offset 0x8e) is zero (default) and the core is 3.05.00 
+;                      (offset 0x8e) is zero (default) and the core is 3.00.05 
 ;                      or newer, disable the expansion bus by writing 0 to the 
 ;                      top four bits of nextreg 0x80, otherwise do nothing.                    
 ;                      Running without any arguments shows more expansive help,
@@ -140,9 +146,11 @@ CORE_VERSION_REGISTER			equ $0E
 PERIPHERAL_1_REGISTER			equ $05		;Sets joystick mode, video frequency, Scanlines and Scandoubler.
 PERIPHERAL_2_REGISTER			equ $06		;Enables Acceleration, Lightpen, DivMMC, Multiface, Mouse and AY audio.
 PERIPHERAL_3_REGISTER			equ $08		;Enables Stereo, Internal Speaker, SpecDrum, Timex Video Modes, Turbo Sound Next and NTSC/PAL selection.
+RASTER_MSB_REGISTER				equ $1e
+RASTER_LSB_REGISTER   			equ $1f
 TBBLUE_REGISTER_SELECT			equ $243B
 
-	MACRO DOT_VERSION:db "v14":ENDM
+	MACRO DOT_VERSION:db "v15":ENDM
 	MACRO FMT_VERSION:db "V1.3":ENDM
 	MACRO SetSpriteControlRegister:NEXTREG_A SPRITE_CONTROL_REGISTER:ENDM
 	MACRO Set14mhz:NEXTREG_nn TURBO_CONTROL_REGISTER,%10:ENDM
@@ -319,7 +327,7 @@ loadbig
 ;	11001000
 	ld a,PERIPHERAL_2_REGISTER:ld bc,TBBLUE_REGISTER_SELECT:out (c),a:inc b:in a,(c)
     ;set 7,a			; preserve F8 enabled/disabled setting
-    res 6,a				; set DMA to ZXN mode
+    ;res 6,a		    ; set DMA to ZXN mode - NO, this bit now means Divert BEEP only to internal speaker
 	;res 5,a    		; preserve F3 enabled/disabled setting
    	res 4,a				; DivMMC automatic paging off
     set 3,a				; mulitface - add to build options so can be selected
@@ -328,8 +336,10 @@ loadbig
 
 	; 			bits 1-0 = Audio chip mode (0- = disabled, 10 = YM, 11 = AY)
 	;			11 = disable audio, or appears to be the case
-
-    out (c),a
+	
+	push af:and %11111100:out (c),a ; disable AYs and set register
+	ld a,1: call rasterWait ; wait 1 frame for AY reset to take effect
+	pop af: NEXTREG_A PERIPHERAL_2_REGISTER; reenable AY to whatever the previous mode was
 
 ;	NEXTREG_nn 8,254
 ; 	11111110
@@ -558,7 +568,8 @@ loadbig
 ;.stop	inc a:and 7:out (254),a:jr .stop
 
 	ld a,(StartDel)
-.ss	or a:jr z,.go:dec a:ei:halt:di:jp .ss
+;.ss	or a:jr z,.go:dec a:ei:halt:di:jp .ss
+	call rasterWait
 .go
 
 	ld	hl,(PCReg):ld sp,(SPReg)
@@ -594,13 +605,24 @@ loadbig
 
 ;--------------------
 delay	ld a,(LoadDel)
-.ss	or a:ret z:dec a:ei:halt:di:jp .ss
+;.ss	or a:ret z:dec a:ei:halt:di:jp .ss
+	or a: ret z:call rasterWait
 ;--------------------
 progress
 	ld a,(LoadBar):or a:ret z
 	ld a,LAYER_2_PAGE_2*2:NEXTREG_A MMU_REGISTER_6:inc a:NEXTREG_A MMU_REGISTER_7
 	ld a,(LoadCol):ld e,a
 	ld h,$fe:ld a,d:add a,a:add a,24-6:ld l,a:ld (hl),e:inc h:ld (hl),e:inc l:ld (hl),e:dec h:ld (hl),e
+	ret
+;--------------------
+rasterWait ; wait for A frames without enabling interrupts, A=0 returns immediately
+	or a:ret z:ld e,a
+.loop
+	NEXTREG_RD RASTER_LSB_REGISTER
+	or a:jr nz, .loop
+	NEXTREG_RD RASTER_MSB_REGISTER
+	or a:jr nz, .loop
+	dec e:jr nz, .loop
 	ret
 ;--------------------
 fileError ; esxDOS error code arrives in a
@@ -734,7 +756,7 @@ help		db		"NEXLOAD "
 			DOT_VERSION
 			db 		" can load .NEX files up to and including format "
 			FMT_VERSION
-			db 		13,13,"Copyright ",127," 2018-2019 Jim Bagley",13,0
+			db 		13,13,"Copyright ",127," 2018-2020 Jim Bagley",13,0
 esxError	ds 		34,128
 
 header		equ		$
