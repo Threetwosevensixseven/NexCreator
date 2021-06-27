@@ -1,10 +1,11 @@
 ;-------------------------------
 ; .nexload 
-; © Jim Bagley 2018-2020
+; © Jim Bagley 2018-2021
 ;
 ; Assembles with sjasmplus - https://github.com/z00m128/sjasmplus
 ; 
 ; Changelist:
+; v16 27/06/2021 RVG   Exiting via help no longer disables interrupts.
 ; v15 13/07/2020 RVG   Pauses are now done by waiting for video lines without
 ;                      enabling interrupts.
 ;                      AYs are now held in reset for one frame before loading,
@@ -150,7 +151,7 @@ RASTER_MSB_REGISTER				equ $1e
 RASTER_LSB_REGISTER   			equ $1f
 TBBLUE_REGISTER_SELECT			equ $243B
 
-	MACRO DOT_VERSION:db "v15":ENDM
+	MACRO DOT_VERSION:db "v16":ENDM
 	MACRO FMT_VERSION:db "V1.3":ENDM
 	MACRO SetSpriteControlRegister:NEXTREG_A SPRITE_CONTROL_REGISTER:ENDM
 	MACRO Set14mhz:NEXTREG_nn TURBO_CONTROL_REGISTER,%10:ENDM
@@ -193,10 +194,11 @@ testfile db 	"NXtel.nex",0
 
 	org	$2000
 start
-	ld (oldStack),sp	
+	ld (oldStack),sp
 
 	ld	a,h:or l:jr nz,.gl
 	ld	hl,help:call print_rst16:jr finish
+	ld a, $f3:ld (print_ret),a ; SMC a DI after printing help
 .gl	ld	de,filename:ld b,127
 .bl	ld	a,(hl):cp ":":jr z,.dn:or a:jr z,.dn:cp 13:jr z,.dn:bit 7,a:jr nz,.dn
 	ld	(de),a:inc hl:inc de:djnz .bl
@@ -745,7 +747,7 @@ LoaderVersion db $12 ; V1.2 in bcd
 HandleAddr  dw 0
 
 print_rst16	ei:ld a,(hl):inc hl:or a:jr z,print_ret:rst 16:jr print_rst16
-print_ret	di:ret
+print_ret	nop:ret ; This will get SMC'd to DI after printing the help
 
 filename	db		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 			db		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -756,7 +758,8 @@ help		db		"NEXLOAD "
 			DOT_VERSION
 			db 		" can load .NEX files up to and including format "
 			FMT_VERSION
-			db 		13,13,"Copyright ",127," 2018-2020 Jim Bagley",13,0
+			db 		13,13,"Copyright ",127," 2018-2021 Jim Bagley",13
+			db		"Maintenance Robin Verhagen-Guest",13,0
 esxError	ds 		34,128
 
 header		equ		$
