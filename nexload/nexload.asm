@@ -5,6 +5,8 @@
 ; Assembles with sjasmplus - https://github.com/z00m128/sjasmplus
 ; 
 ; Changelist:
+; v17 25/01/2024 RVG   Preserve existing internal speaker enable setting.
+;                      This is a user preference setting, not a game setting.
 ; v16 27/06/2021 RVG   Exiting via help no longer disables interrupts.
 ; v15 13/07/2020 RVG   Pauses are now done by waiting for video lines without
 ;                      enabling interrupts.
@@ -343,13 +345,13 @@ loadbig
 	ld a,1: call rasterWait ; wait 1 frame for AY reset to take effect
 	pop af: NEXTREG_A PERIPHERAL_2_REGISTER; reenable AY to whatever the previous mode was
 
-;	NEXTREG_nn 8,254
-; 	11111110
+;	NEXTREG_nn 8,a
+; 	111x1110
 	ld a,PERIPHERAL_3_REGISTER:ld bc,TBBLUE_REGISTER_SELECT:out (c),a:inc b:in a,(c)
 	set 7,a			; disable locked paging
 	set 6,a			; disable contention
 	res 5,a			; stereo to ABC   (perhaps leave to options?)
-	set 4,a 		; enable internal speaker
+					; bit 4 (enable internal speaker) is a user setting, not a game setting. Don't change it!
 	set 3,a 		; enable specdrum
 	set 2,a 		; enable timex
 	set 1,a 		; enable turbosound
