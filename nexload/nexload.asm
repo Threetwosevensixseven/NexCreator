@@ -1,10 +1,11 @@
 ;-------------------------------
 ; .nexload 
-; © Jim Bagley 2018-2021
+; © Jim Bagley 2018-2024
 ;
 ; Assembles with sjasmplus - https://github.com/z00m128/sjasmplus
 ; 
 ; Changelist:
+; v18 06/06/2024 RVG   Bumped version to v18 as it was left at v16 last time.
 ; v17 25/01/2024 RVG   Preserve existing internal speaker enable setting.
 ;                      This is a user preference setting, not a game setting.
 ; v16 27/06/2021 RVG   Exiting via help no longer disables interrupts.
@@ -153,7 +154,7 @@ RASTER_MSB_REGISTER				equ $1e
 RASTER_LSB_REGISTER   			equ $1f
 TBBLUE_REGISTER_SELECT			equ $243B
 
-	MACRO DOT_VERSION:db "v16":ENDM
+	MACRO DOT_VERSION:db "v18":ENDM
 	MACRO FMT_VERSION:db "V1.3":ENDM
 	MACRO SetSpriteControlRegister:NEXTREG_A SPRITE_CONTROL_REGISTER:ENDM
 	MACRO Set14mhz:NEXTREG_nn TURBO_CONTROL_REGISTER,%10:ENDM
@@ -760,7 +761,7 @@ help		db		"NEXLOAD "
 			DOT_VERSION
 			db 		" can load .NEX files up to and including format "
 			FMT_VERSION
-			db 		13,13,"Copyright ",127," 2018-2021 Jim Bagley",13
+			db 		13,13,"Copyright ",127," 2018-2024 Jim Bagley",13
 			db		"Maintenance Robin Verhagen-Guest",13,0
 esxError	ds 		34,128
 
